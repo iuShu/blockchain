@@ -1,0 +1,6 @@
+accept: */*
+accept-encoding: gzip, deflate, br
+accept-language: zh-CN,zh;q=0.9
+cookie: _ga=GA1.1.613141897.1641703228; _ga_EKLPQL67GF=GS1.1.1641706143.2.1.1641709357.0
+referer: https://starsharks.com/market
+user-agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36

@@ -1,0 +1,20 @@
+:authority: starsharks.com
+:method: POST
+:path: /go/api/market/sharks
+:scheme: https
+accept: */*
+accept-encoding: gzip, deflate, br
+accept-language: zh-CN,zh;q=0.9
+authorization
+content-type: application/json
+cookie: _ga=GA1.1.613141897.1641703228; _ga_EKLPQL67GF=GS1.1.1641706143.2.1.1641708915.0
+origin: https://starsharks.com
+referer: https://starsharks.com/market
+sec-ch-ua: " Not;A Brand";v="99", "Google Chrome";v="97", "Chromium";v="97"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Windows"
+sec-fetch-dest: empty
+sec-fetch-mode: cors
+sec-fetch-site: same-origin
+sentry-trace: 8f73552dd97242908de6d99d60ae3ef3-ac4ae92087f0da7f-1
+user-agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36
