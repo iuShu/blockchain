@@ -74,12 +74,15 @@ public class ApiConnection {
         printSimpleJson(result);
     }
 
-    static void loanList() {
+    /**
+     * @see LeaseCrawler#handle(JSONObject)
+     */
+    public static JSONObject loanList(int page, int row) {
         JSONObject data = new JSONObject();
-        data.put("page", 1);
-        data.put("row", 12);
-        JSONObject result = KaraHttpUtils.post(LOAN_LIST, data);
-        printSimpleJson(result);
+        data.put("page", page);
+        data.put("row", row);
+        data.put("timestamp", System.currentTimeMillis() / 1000);
+        return KaraHttpUtils.post(LOAN_LIST, data);
     }
 
     static void getBalance() {
@@ -94,7 +97,7 @@ public class ApiConnection {
      */
     public static void main(String[] args) throws Exception {
 //        options();
-        index();
+//        index();
 //        infoByPetId();
 //        loanList();
 //        getBalance();

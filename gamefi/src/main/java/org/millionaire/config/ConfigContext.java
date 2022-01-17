@@ -29,18 +29,20 @@ public class ConfigContext {
     private static final ConfigContext INSTANCE = new ConfigContext();
 
     private ConfigContext() {
-        String path = ConfigContext.class.getClassLoader().getResource("org").getPath();
+        String path = ConfigContext.class.getClassLoader().getResource("config").getPath();
         developing = !path.contains(".jar");
         root = new File(developing ? path : CONFIG_DIR);
         System.out.println("[crawler] config at " + root.getAbsolutePath());
-        loadConfig();
+        initConfig(root);
         watchConfig();
     }
 
-    private void loadConfig() {
+    private void initConfig(File dir) {
         try {
             System.out.println("[crawler] loading configurations ...");
-            for (File file : root.listFiles()) {
+            for (File file : dir.listFiles()) {
+                if (file.isDirectory())
+                    initConfig(file);
                 if (getExtension(file.getName()).equals(CONFIG_EXTENSION))
                     loadConfig(file);
             }
