@@ -1,5 +1,3 @@
-from typing import Union
-
 from config import conf
 from ether import *
 import requests
