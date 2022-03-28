@@ -10,6 +10,9 @@ class Configuration(object):
         self.repo = dict()
         self.load_conf()
         self.repo['headers'] = {'json': {'content-type': 'application/json'}}
+        self.cur_network = self.repo['networks']['ropsten']['url']
+        self.cur_header = self.repo['headers']['json']
+        print('[env] current network: ropsten', self.cur_network)
 
     def load_conf(self):
         def find_conf(path):
@@ -63,6 +66,21 @@ class Configuration(object):
         ac = self.repo['accounts']
         if ac:
             return [ac[k]['address'] for k in ac.keys()]
+
+    def set_network(self, name: str) -> str:
+        nw = self.repo['networks']
+        if name not in nw.keys():
+            raise EnvironmentError('no such network ' + name)
+        self.cur_network = nw[name]['url']
+        print('[env] current network:', name, self.cur_network)
+        return self.cur_network
+
+    def set_header(self, name: str) -> dict:
+        hd = self.repo['headers']
+        if name not in hd.keys():
+            raise EnvironmentError('no such header ' + name)
+        self.cur_header = hd[name]
+        return self.cur_header
 
 
 conf = Configuration()

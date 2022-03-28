@@ -10,6 +10,10 @@ FACTORS = {
     ETH: 18
 }
 
+BLOCK_TAG_PENDING = 'pending'
+BLOCK_TAG_LATEST = 'latest'
+BLOCK_TAG_EARLIEST = 'earliest'
+
 
 def to_wei(val, unit=ETH) -> str:
     fl = isinstance(val, float)
