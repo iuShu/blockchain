@@ -7,6 +7,18 @@
     "name": "ropsten",
     "url": "https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
   },
+    {
+    "name": "rinkeby",
+    "url": "https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
+  },
+  {
+    "name": "goerli",
+    "url": "https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
+  },
+  {
+    "name": "kovan",
+    "url": "https://kovan.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
+  },
   {
     "name": "local",
     "url": "http://localhost:8545"

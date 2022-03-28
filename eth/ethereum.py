@@ -4,13 +4,13 @@ import requests
 
 
 def request(params):
-    print('=>', params)
+    print('-->', params)
     resp = requests.post(url=conf.cur_network, json=params, headers=conf.cur_header)
     if resp.status_code != 200:
         raise ConnectionError(f'unexpected status code {resp.status_code}')
 
     json = resp.json()
-    print('<=', json)
+    print('<--', json)
 
     if isinstance(json, list):      # multi-request
         err, ret = [], []
