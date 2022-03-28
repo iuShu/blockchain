@@ -33,7 +33,7 @@ def from_wei(val, to_unit=ETH) -> str:
 
 
 if __name__ == '__main__':
-    # print(int(0xde0b6b3a7640000))
+    print(int(0xde0b6b3a7640000))
     print(to_wei(.000054))
     print(to_wei(2.000054))
     print(to_wei(12))
