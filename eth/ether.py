@@ -50,3 +50,7 @@ if __name__ == '__main__':
     print(from_wei(192, GWEI))
     print(from_wei(192, ETH))
     print(from_wei(0xde0b6b3a7640000, ETH))
+
+    args = [0x79cb31, 0x9502f909, 0x5208]
+    for a in args:
+        print(from_wei(a, ETH))

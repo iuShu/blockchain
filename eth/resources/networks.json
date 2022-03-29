@@ -1,25 +1,31 @@
 [
   {
+    "id": "0x1",
     "name": "mainnet",
     "url": "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
   },
   {
+    "id": "0x3",
     "name": "ropsten",
     "url": "https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
   },
-    {
+  {
+    "id": "0x4",
     "name": "rinkeby",
     "url": "https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
   },
   {
+    "id": "0x5",
     "name": "goerli",
     "url": "https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
   },
   {
+    "id": "0x2a",
     "name": "kovan",
     "url": "https://kovan.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
   },
   {
+    "id": "0x0",
     "name": "local",
     "url": "http://localhost:8545"
   }

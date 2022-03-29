@@ -5,7 +5,7 @@ import requests
 
 def request(params):
     print('-->', params)
-    resp = requests.post(url=conf.cur_network, json=params, headers=conf.cur_header)
+    resp = requests.post(url=conf.cur_network['url'], json=params, headers=conf.cur_header)
     if resp.status_code != 200:
         raise ConnectionError(f'unexpected status code {resp.status_code}')
 
@@ -36,7 +36,7 @@ def chain_id() -> int:
     return int16(request(jsonapi))
 
 
-def get_protocol_version() -> int:
+def protocol_version() -> int:
     jsonapi = conf.jsonapi('eth_protocolVersion')
     return int16(request(jsonapi))
 
@@ -54,6 +54,21 @@ def accounts():
 def latest_block() -> int:
     jsonapi = conf.jsonapi('eth_blockNumber')
     return int16(request(jsonapi))
+
+
+def get_work() -> dict:
+    jsonapi = conf.jsonapi('eth_getWork')
+    return request(jsonapi)
+
+
+def mining() -> bool:
+    jsonapi = conf.jsonapi('eth_mining')
+    return request(jsonapi)
+
+
+def hashrate() -> str:
+    jsonapi = conf.jsonapi('eth_hashrate')
+    return request(jsonapi)
 
 
 def get_balance(address: str, block_tag=BLOCK_TAG_LATEST, block_number: str = '') -> int:
@@ -74,16 +89,22 @@ def get_balances(addresses: list, block_tag=BLOCK_TAG_LATEST, block_number: str 
     return list(map(int16, request(multiple)))
 
 
-def get_transaction(tx_hash: str) -> dict:
+def get_tx(tx_hash: str) -> dict:
     jsonapi = conf.jsonapi('eth_getTransactionByHash')
     jsonapi['params'] = [tx_hash]
     return request(jsonapi)
 
 
-def get_transactionb(block: str, tx_index: str) -> dict:
+def get_txb(block: str, tx_index: str) -> dict:
     method = 'eth_getTransactionByBlockHashAndIndex' if len(block) > 64 else 'eth_getTransactionByBlockNumberAndIndex'
     jsonapi = conf.jsonapi(method)
     jsonapi['params'] = [block, tx_index]
+    return request(jsonapi)
+
+
+def get_tx_receipt(tx_hash: str) -> dict:
+    jsonapi = conf.jsonapi('eth_getTransactionReceipt')
+    jsonapi['params'] = [tx_hash]
     return request(jsonapi)
 
 
@@ -113,12 +134,30 @@ def gas_price() -> int:
     return int16(request(jsonapi))
 
 
-def estimate_gas(tx: dict) -> int:
+def estimate_gas(tx: dict) -> int:  # also known as 'gas limit/units'
     jsonapi = conf.jsonapi('eth_estimateGas')
-    tx.pop('maxFeePerGas')
-    tx.pop('maxPriorityFeePerGas')
     jsonapi['params'] = [tx]
     return int16(request(jsonapi))
+
+
+def sign_tx(tx: dict) -> str:
+    # jsonapi = conf.jsonapi('eth_signTransaction')
+    # jsonapi['params'] = [tx]
+    # return request(jsonapi)
+    pass
+
+
+def send_tx(tx: dict):
+    # jsonapi = conf.jsonapi('eth_sendTransaction')
+    # jsonapi['params'] = [tx]
+    # return request(jsonapi)
+    pass
+
+
+def send_raw_tx(tx_hash: str):
+    jsonapi = conf.jsonapi('eth_sendRawTransaction')
+    jsonapi['params'] = [tx_hash]
+    return request(jsonapi)
 
 
 def get_code(addr: str, block_tag=BLOCK_TAG_LATEST, block_number: str = '') -> str:
@@ -127,8 +166,41 @@ def get_code(addr: str, block_tag=BLOCK_TAG_LATEST, block_number: str = '') -> s
     return request(jsonapi)
 
 
-def tx_fee(gas_units: int, base_fee: int) -> int:
-    return gas_units * base_fee  # burnt fee
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+def estimate_tx_fee(tx: dict) -> int:
+    gas_price_api = conf.jsonapi('eth_gasPrice')
+    gas_api = conf.jsonapi('eth_estimateGas')
+    gas_api['params'] = [tx]
+    jsonapi = [gas_price_api, gas_api]
+    res = request(jsonapi)
+    return int16(res[0]) * int16(res[1])
+
+
+def calc_tx_fee(tx: dict) -> int:
+    return int16(tx['gas']) * int16(tx['gasPrice'])
+
+
+def create_tx(value: int, _from: str, _to: str) -> dict:
+    tx = {
+        'value': str(hex(value)),   # wei
+        'from': _from,
+        'to': _to,
+        'nonce': '0x0',
+        'chainId': conf.cur_network['id'],
+        'input': '0x',
+        'accessList': [],
+        'type': '0x2'
+    }
+    gas_price_api = conf.jsonapi('eth_gasPrice')
+    gas_api = conf.jsonapi('eth_estimateGas')
+    gas_api['params'] = [tx]
+    jsonapi = [gas_price_api, gas_api]
+    res = request(jsonapi)
+    tx['gasPrice'] = res[0]
+    tx['gas'] = res[1]
+    return tx
 
 
 def test():
@@ -166,8 +238,12 @@ def test():
     # tx_info = get_transaction(tx_hash)
     # [print(k, tx_info[k]) for k in tx_info.keys()]
 
+    # [tx_info.pop(k) for k in ['gas', 'gasPrice', 'maxFeePerGas', 'maxPriorityFeePerGas']]
     # eg = estimate_gas(tx_info)
     # print(eg)
+
+    # tx_fee = estimate_tx_fee()
+    # print(tx_fee, from_wei(tx_fee, GWEI), from_wei(tx_fee, ETH))
 
     block_index = '0xb93e22'
     block_hash = '0xdd117e5599274f6cfab399095432c49d6ecce5ad8bae81447c7a49f5fb8e38e0'
@@ -187,6 +263,29 @@ def test():
     to_addr = '0xc7a97d815770675979c150829232f83112267056'
     # code = get_code(to_addr)
     # print(code)
+
+    # work = get_work()
+    # print(work)
+
+    # mine = mining()
+    # print(mine)
+
+    # hr = hashrate()
+    # print(hr)
+
+    # print(from_wei(10000000000000000, ETH))
+    # print(from_wei(21000 * 2500000000, ETH))
+
+    fa = conf.account('billionaire')
+    ta = conf.account('billionaire2')
+    tx = create_tx(int(to_wei(0.25, ETH)), fa, ta)
+    [print(k, tx[k]) for k in tx]
+
+    # res = send_raw_tx(tx_hash=tx_hash)
+    # print(res)
+
+    # rtx = get_tx_receipt(tx_hash)
+    # [print(k, rtx[k]) for k in rtx]
 
     pass
 

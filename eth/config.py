@@ -10,9 +10,9 @@ class Configuration(object):
         self.repo = dict()
         self.load_conf()
         self.repo['headers'] = {'json': {'content-type': 'application/json'}}
-        self.cur_network = self.repo['networks']['ropsten']['url']
+        self.cur_network = self.repo['networks']['ropsten']
         self.cur_header = self.repo['headers']['json']
-        print('[env] current network: ropsten', self.cur_network)
+        print('[env] current network: ropsten', self.cur_network['url'])
 
     def load_conf(self):
         def find_conf(path):
@@ -62,17 +62,24 @@ class Configuration(object):
         if ac:
             return ac[name]['address']
 
-    def all_accounts(self) -> list:
+    def secret(self, name: str) -> str:
         ac = self.repo['accounts']
         if ac:
+            return ac[name]['secret']
+
+    def all_accounts(self, with_secret=False) -> list:
+        ac = self.repo['accounts']
+        if ac:
+            if with_secret:
+                return [[ac[k]['address'] for k in ac.keys()], [ac[k]['secret'] for k in ac.keys()]]
             return [ac[k]['address'] for k in ac.keys()]
 
-    def set_network(self, name: str) -> str:
+    def set_network(self, name: str) -> dict:
         nw = self.repo['networks']
         if name not in nw.keys():
             raise EnvironmentError('no such network ' + name)
-        self.cur_network = nw[name]['url']
-        print('[env] current network:', name, self.cur_network)
+        self.cur_network = nw[name]
+        print('[env] current network:', name, self.cur_network['url'])
         return self.cur_network
 
     def set_header(self, name: str) -> dict:
@@ -91,3 +98,4 @@ if __name__ == '__main__':
     print(conf.network('ropsten'))
     print(conf.account('billionaire2'))
     print(conf.all_accounts())
+    print(conf.all_accounts(with_secret=True))
