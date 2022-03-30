@@ -14,5 +14,10 @@
     "name": "billionaire3",
     "address": "0x165d8f4B894ceEaE80389C200648d28b61087721",
     "secret": ""
+  },
+  {
+    "name": "billionaire4",
+    "address":"0x8cc8ee20875562f54f505676951828A0cAD8eF7A",
+    "secret": ""
   }
 ]

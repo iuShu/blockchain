@@ -32,6 +32,12 @@
         r                   ... ...
         s                   ... ...
         v                   ... ...
+
+    related
+        eth_sendTransaction         used for sending unsigned txs, which means the node you are sending to
+                                    must manage your private key so it can sign the tx and then broadcasting it.
+        eth_sendRawTransaction      used to broadcast the txs that have already been signed.
+
 """
 
 import ethereum

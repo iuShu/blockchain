@@ -28,5 +28,10 @@
     "id": "0x0",
     "name": "local",
     "url": "http://localhost:8545"
+  },
+  {
+    "id": "0x539",
+    "name": "ganache",
+    "url": "http://localhost:7545"
   }
 ]

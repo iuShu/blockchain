@@ -115,7 +115,13 @@ def get_block(block: str, hydrated=False) -> dict:
     return request(jsonapi)
 
 
-def get_tx_count(block: str) -> int:
+def get_tx_count(addr: str) -> int:
+    jsonapi = conf.jsonapi('eth_getTransactionCount')
+    jsonapi['params'] = [addr, BLOCK_TAG_LATEST]
+    return int16(request(jsonapi))
+
+
+def get_txb_count(block: str) -> int:
     method = 'eth_getBlockTransactionCountByHash' if len(block) > 64 else 'eth_getBlockTransactionCountByNumber'
     jsonapi = conf.jsonapi(method)
     jsonapi['params'] = [block]
@@ -148,10 +154,10 @@ def sign_tx(tx: dict) -> str:
 
 
 def send_tx(tx: dict):
-    # jsonapi = conf.jsonapi('eth_sendTransaction')
-    # jsonapi['params'] = [tx]
-    # return request(jsonapi)
-    pass
+    jsonapi = conf.jsonapi('eth_sendTransaction')
+    jsonapi['params'] = [tx]
+    return request(jsonapi)
+    # pass
 
 
 def send_raw_tx(tx_hash: str):
@@ -187,29 +193,33 @@ def create_tx(value: int, _from: str, _to: str) -> dict:
         'value': str(hex(value)),   # wei
         'from': _from,
         'to': _to,
-        'nonce': '0x0',
         'chainId': conf.cur_network['id'],
-        'input': '0x',
-        'accessList': [],
+        # 'input': '0x',
+        # 'accessList': [],
         'type': '0x2'
     }
     gas_price_api = conf.jsonapi('eth_gasPrice')
     gas_api = conf.jsonapi('eth_estimateGas')
     gas_api['params'] = [tx]
-    jsonapi = [gas_price_api, gas_api]
+    nonce_api = conf.jsonapi('eth_getTransactionCount')
+    nonce_api['params'] = [_from, BLOCK_TAG_LATEST]
+    jsonapi = [gas_price_api, gas_api, nonce_api]
     res = request(jsonapi)
     tx['gasPrice'] = res[0]
     tx['gas'] = res[1]
+    nonce = int16(res[2])
+    tx['nonce'] = hex(0 if nonce == 0 else (nonce + 1))
     return tx
 
 
 def test():
     # conf.set_network('mainnet')
+    conf.set_network('ganache')
 
     # chainId = chain_id()
     # print(chainId)
 
-    # ver = get_protocol_version()
+    # ver = protocol_version()
     # print(ver)
 
     # sync = syncing()
@@ -235,7 +245,7 @@ def test():
     # print(from_wei(gas, ETH), ETH)
 
     tx_hash = '0xe1a87f22f7945f533f91ea9a03dd5aa7d9b10f6017e043fd7824d48e6366455a'
-    # tx_info = get_transaction(tx_hash)
+    # tx_info = get_tx(tx_hash)
     # [print(k, tx_info[k]) for k in tx_info.keys()]
 
     # [tx_info.pop(k) for k in ['gas', 'gasPrice', 'maxFeePerGas', 'maxPriorityFeePerGas']]
@@ -250,7 +260,7 @@ def test():
     # block = get_block(block_index, True)
     # [print(k, block[k])for k in block.keys()]
 
-    # tx_info = get_transactionb(block_hash, str(hex(0)))
+    # tx_info = get_txb(block_hash, str(hex(0)))
     # [print(k, tx_info[k]) for k in tx_info.keys()]
 
     # tx_count = get_tx_count(block_index)
@@ -278,10 +288,10 @@ def test():
 
     fa = conf.account('billionaire')
     ta = conf.account('billionaire2')
-    tx = create_tx(int(to_wei(0.25, ETH)), fa, ta)
-    [print(k, tx[k]) for k in tx]
+    # tx = create_tx(int(to_wei(0.25, ETH)), fa, ta)
+    # [print(k, tx[k]) for k in tx]
 
-    # res = send_raw_tx(tx_hash=tx_hash)
+    # res = send_raw_tx(tx_hash='')
     # print(res)
 
     # rtx = get_tx_receipt(tx_hash)
