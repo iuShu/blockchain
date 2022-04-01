@@ -1,4 +1,39 @@
 """
+    common fields
+        type                the tx type, as of the Berlin version of the protocol, there are two tx types:
+                            0(legacy) and 1(EIP-2930), there are two subtypes of txs, those which result in
+                            message calls and those which result in the creation of new accounts with associated
+                            code (known informally as 'contract creation')
+        nonce               a scalar value equal to the number of txs sent by the sender
+        gas                 also known as gas limit/units, can be obtained by estimate_gas(tx), different gas fees
+                            between different transaction.
+        gas price           can be obtained by gas_price(), equals to current max_priority_fee + block.base_fee.
+        chainId             the chain id that the tx belongs to.
+        input               the data field, described how to call a smart contract.
+        access list         ... ...
+        r                   corresponding to the signature of the tx and used to determine the sender of the tx.
+        s                   corresponding to the signature of the tx and used to determine the sender of the tx.
+        v                   ... ...
+
+    contract creation tx
+        init                a contract creation tx contains this field.
+        data                an unlimited size byte array specifying the input data of the message call.
+
+    legacy tx
+        w                   a scalar value encoding Y parity and possibly chain id
+
+    EIP-2930 tx
+        type                1
+        accessList          list of access entries to warm up, each access list entry is a tuple of an account
+                            address and a list of storage keys.
+        chainId             equal to the network chain id.
+        yParity             signature Y parity.
+
+    EIP-1559 tx
+        type                    2
+        maxFeePerGas            see the following London Upgrade field 'max fee'
+        maxPriorityFeePerGas    see the following London Upgrade field 'priority fee'
+
     London Upgrade
         base fee        every block has a base fee which acts a reserve price, to be eligible
                         for inclusion in a block the offered price per gas must at least equal
@@ -16,24 +51,7 @@
                         sender is refunded the difference between the max fee and the sum of the base fee
                         and tip, the refund equals to max fee - tx fee.
 
-    fields
-        type                the tx type.
-        tx index            the index of the tx in the block.
-        gas                 also known as gas limit/units, can be obtained by estimate_gas(tx), different gas fees
-                            between different transaction.
-        gas price           can be obtained by gas_price(), equals to current max_priority_fee + block.base_fee.
-        tx fee              the total fee about a tx, equals to gas * gas price.
-        max fee             refers to the max fee mentioned above.
-        max priority fee    refers to the priority fee mentioned above.
-        chainId             the chain id that the tx belongs to.
-        input               the data field, described how to call a smart contract.
-        nonce               ... ...
-        access list         ... ...
-        r                   ... ...
-        s                   ... ...
-        v                   ... ...
-
-    related
+    interfaces
         eth_sendTransaction         used for sending unsigned txs, which means the node you are sending to
                                     must manage your private key so it can sign the tx and then broadcasting it.
         eth_sendRawTransaction      used to broadcast the txs that have already been signed.
@@ -41,7 +59,7 @@
 """
 
 import ethereum
-from ethereum import int16
+from ethereum import int16, conf, BLOCK_TAG_LATEST, request, to_wei, GWEI
 import utils
 
 
@@ -109,12 +127,57 @@ class Transaction(object):
                 d.pop(k)
         return d
 
+    @staticmethod
+    def create_legacy(_from: str, _to: str, value: str) -> dict:
+        tx = {
+            # 'type': '0x1',
+            'from': _from,
+            'to': _to,
+            'value': value
+        }
+        gas_price_api = conf.jsonapi('eth_gasPrice')
+        gas_api = conf.jsonapi('eth_estimateGas')
+        gas_api['params'] = [tx]
+        nonce_api = conf.jsonapi('eth_getTransactionCount')
+        nonce_api['params'] = [_from, BLOCK_TAG_LATEST]
+        jsonapi = [gas_price_api, gas_api, nonce_api]
+        res = request(jsonapi)
+        tx['gasPrice'] = res[0]
+        tx['gas'] = res[1]
+        tx['nonce'] = hex(int16(res[2]))
+        # tx['data'] = ''
+        # tx['chainId'] = conf.cur_network['id']
+        return tx
+
+    @staticmethod
+    def create_dynamic_fee(_from: str, _to: str, value: str) -> dict:
+        tx = dict({'from': _from, 'to': _to, 'value': value, 'type': '0x2'})
+        tx['gas'] = ethereum.estimate_gas(tx)
+        tx['maxFeePerGas'] = to_wei(250, GWEI)
+        tx['maxPriorityFeePerGas'] = to_wei(2, GWEI)
+        return tx
+
+    @staticmethod
+    def print_tx(tx: dict):
+        separator = ''.join(['-' for _ in range(16)])
+        title = 'Legacy'
+        if 'type' in tx:
+            t = int16(tx['type'])
+            if t == 1:
+                title = 'EIP-2930'
+            elif t == 2:
+                title = 'EIP-1559'
+        print(separator, title, separator)
+        [print(k, tx[k]) for k in tx]
+        print(separator, ''.join(['-' for _ in range(len(title))]), separator)
+
 
 if __name__ == '__main__':
     # print(int(0x2386f26fc10000))
-    tx = Transaction()
-    print(tx.calc_gas_price(base_fee='0x9'))
-    print(tx.calc_tx_fee())
-    print(tx.calc_tx_max_fee())
-    print(tx.calc_refund())
-    print(tx.calc_burnt(base_fee='0x9'))
+    # tx = Transaction()
+    # print(tx.calc_gas_price(base_fee='0x9'))
+    # print(tx.calc_tx_fee())
+    # print(tx.calc_tx_max_fee())
+    # print(tx.calc_refund())
+    # print(tx.calc_burnt(base_fee='0x9'))
+    pass

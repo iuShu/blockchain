@@ -6,13 +6,19 @@ import sys
 class Configuration(object):
 
     def __init__(self):
-        self.root = sys.path[1]
+        self.root = self.confirm_root()
         self.repo = dict()
         self.load_conf()
         self.repo['headers'] = {'json': {'content-type': 'application/json'}}
         self.cur_network = self.repo['networks']['ropsten']
         self.cur_header = self.repo['headers']['json']
         print('[env] current network: ropsten', self.cur_network['url'])
+
+    @staticmethod
+    def confirm_root() -> str:
+        if 'PyCharm' in sys.path[1]:    # debug mode
+            return sys.path[2]
+        return sys.path[1]
 
     def load_conf(self):
         def find_conf(path):

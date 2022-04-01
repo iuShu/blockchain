@@ -41,6 +41,11 @@ def protocol_version() -> int:
     return int16(request(jsonapi))
 
 
+def coinbase() -> str:
+    jsonapi = conf.jsonapi('eth_coinbase')
+    return request(jsonapi)
+
+
 def syncing():
     jsonapi = conf.jsonapi('eth_syncing')
     return request(jsonapi)
@@ -227,6 +232,9 @@ def test():
 
     # acs = accounts()
     # print(acs)
+
+    cb = coinbase()
+    print(cb)
 
     # bn = latest_block()
     # print(bn)
