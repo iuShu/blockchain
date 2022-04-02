@@ -127,50 +127,6 @@ class Transaction(object):
                 d.pop(k)
         return d
 
-    @staticmethod
-    def create_legacy(_from: str, _to: str, value: str) -> dict:
-        tx = {
-            # 'type': '0x1',
-            'from': _from,
-            'to': _to,
-            'value': value
-        }
-        gas_price_api = conf.jsonapi('eth_gasPrice')
-        gas_api = conf.jsonapi('eth_estimateGas')
-        gas_api['params'] = [tx]
-        nonce_api = conf.jsonapi('eth_getTransactionCount')
-        nonce_api['params'] = [_from, BLOCK_TAG_LATEST]
-        jsonapi = [gas_price_api, gas_api, nonce_api]
-        res = request(jsonapi)
-        tx['gasPrice'] = res[0]
-        tx['gas'] = res[1]
-        tx['nonce'] = hex(int16(res[2]))
-        # tx['data'] = ''
-        # tx['chainId'] = conf.cur_network['id']
-        return tx
-
-    @staticmethod
-    def create_dynamic_fee(_from: str, _to: str, value: str) -> dict:
-        tx = dict({'from': _from, 'to': _to, 'value': value, 'type': '0x2'})
-        tx['gas'] = ethereum.estimate_gas(tx)
-        tx['maxFeePerGas'] = to_wei(250, GWEI)
-        tx['maxPriorityFeePerGas'] = to_wei(2, GWEI)
-        return tx
-
-    @staticmethod
-    def print_tx(tx: dict):
-        separator = ''.join(['-' for _ in range(16)])
-        title = 'Legacy'
-        if 'type' in tx:
-            t = int16(tx['type'])
-            if t == 1:
-                title = 'EIP-2930'
-            elif t == 2:
-                title = 'EIP-1559'
-        print(separator, title, separator)
-        [print(k, tx[k]) for k in tx]
-        print(separator, ''.join(['-' for _ in range(len(title))]), separator)
-
 
 if __name__ == '__main__':
     # print(int(0x2386f26fc10000))

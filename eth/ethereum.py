@@ -177,6 +177,46 @@ def get_code(addr: str, block_tag=BLOCK_TAG_LATEST, block_number: str = '') -> s
     return request(jsonapi)
 
 
+def new_filter() -> str:
+    jsonapi = conf.jsonapi('eth_newFilter')
+    jsonapi['params'] = [{'from': 0, 'to': 10, 'address': '0xE3899e1c3020f63eC1Da9F1A6a0049Aed80FbC72'}]
+    return request(jsonapi)
+
+
+def new_block_filter() -> str:
+    jsonapi = conf.jsonapi('eth_newBlockFilter')
+    return request(jsonapi)
+
+
+def new_pending_tx_filter() -> str:
+    jsonapi = conf.jsonapi('eth_newPendingTransactionFilter')
+    return request(jsonapi)
+
+
+def uninstall_filter(*filter_id) -> bool:
+    jsonapi = conf.jsonapi('eth_uninstallFilter')
+    jsonapi['params'] = list(filter_id)
+    return request(jsonapi)
+
+
+def get_logs():
+    jsonapi = conf.jsonapi('eth_getLogs')
+    # jsonapi['params'] = ['0xE3899e1c3020f63eC1Da9F1A6a0049Aed80FbC72']
+    return request(jsonapi)
+
+
+def get_filter_logs(filter_id: str) -> list:
+    jsonapi = conf.jsonapi('eth_getFilterLogs')
+    jsonapi['params'] = [filter_id]
+    return request(jsonapi)
+
+
+def get_filter_changes(filter_id: str) -> list:
+    jsonapi = conf.jsonapi('eth_getFilterChanges')
+    jsonapi['params'] = [filter_id]
+    return request(jsonapi)
+
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 
@@ -233,8 +273,8 @@ def test():
     # acs = accounts()
     # print(acs)
 
-    cb = coinbase()
-    print(cb)
+    # cb = coinbase()
+    # print(cb)
 
     # bn = latest_block()
     # print(bn)
@@ -305,6 +345,21 @@ def test():
     # rtx = get_tx_receipt(tx_hash)
     # [print(k, rtx[k]) for k in rtx]
 
+    # logs = get_logs()
+    # print(logs)
+
+    fid = new_filter()
+    b_fid = new_block_filter()
+    pt_fid = new_pending_tx_filter()
+    print(fid, b_fid, pt_fid)
+
+    for i in (fid, b_fid, pt_fid):
+        filter_logs = get_filter_logs(i)
+        filter_changes = get_filter_changes(i)
+        print(filter_logs)
+        print(filter_changes)
+
+    print(uninstall_filter(fid, b_fid, pt_fid))
     pass
 
 
