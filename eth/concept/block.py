@@ -42,7 +42,7 @@ class Block(object):
 
         self.gas_limit = '0x7a1200'     # 8000000
         self.gas_used = '0x79cb31'      # 7981873
-        self.base_fee_per_gas = '0x9'   # 9
+        self.base_fee_per_gas = '0x9'   # 9         wei
         self.transactions = []
 
         self.state_root = ''

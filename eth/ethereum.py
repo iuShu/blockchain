@@ -2,6 +2,9 @@ from config import conf
 from ether import *
 import requests
 
+gas_tracker_url = 'https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey' \
+                  '=YourApiKey'
+
 
 def request(params):
     print('-->', params)
@@ -151,6 +154,24 @@ def estimate_gas(tx: dict) -> int:  # also known as 'gas limit/units'
     return int16(request(jsonapi))
 
 
+def max_priority_fee() -> int:
+    # non-spec method and only supported by some clients
+    jsonapi = conf.jsonapi('eth_maxPriorityFeePerGas')
+    return int16(request(jsonapi))
+
+
+def gas_tracker():
+    # require vpn
+
+    resp = requests.get(url=gas_tracker_url)    # calculated by oracle fee history statistic
+    print(resp.status_code)
+    json = resp.json()['result']
+    print(json)
+
+    conf.set_network('mainnet')
+    print(max_priority_fee())                   # provided by ethereum node/client
+
+
 def sign_tx(tx: dict) -> str:
     # jsonapi = conf.jsonapi('eth_signTransaction')
     # jsonapi['params'] = [tx]
@@ -178,9 +199,10 @@ def get_code(addr: str, block_tag=BLOCK_TAG_LATEST, block_number: str = '') -> s
 
 
 def new_filter() -> str:
-    jsonapi = conf.jsonapi('eth_newFilter')
-    jsonapi['params'] = [{'from': 0, 'to': 10, 'address': '0xE3899e1c3020f63eC1Da9F1A6a0049Aed80FbC72'}]
-    return request(jsonapi)
+    # jsonapi = conf.jsonapi('eth_newFilter')
+    # jsonapi['params'] = [{'from': 0, 'to': 'latest', 'address': '0xE3899e1c3020f63eC1Da9F1A6a0049Aed80FbC72'}]
+    # return request(jsonapi)
+    pass
 
 
 def new_block_filter() -> str:
@@ -259,7 +281,6 @@ def create_tx(value: int, _from: str, _to: str) -> dict:
 
 def test():
     # conf.set_network('mainnet')
-    conf.set_network('ganache')
 
     # chainId = chain_id()
     # print(chainId)
@@ -308,7 +329,7 @@ def test():
     # block = get_block(block_index, True)
     # [print(k, block[k])for k in block.keys()]
 
-    # tx_info = get_txb(block_hash, str(hex(0)))
+    # tx_info = get_txb(block_hash, str(hex(1)))
     # [print(k, tx_info[k]) for k in tx_info.keys()]
 
     # tx_count = get_tx_count(block_index)
@@ -348,18 +369,25 @@ def test():
     # logs = get_logs()
     # print(logs)
 
-    fid = new_filter()
-    b_fid = new_block_filter()
-    pt_fid = new_pending_tx_filter()
-    print(fid, b_fid, pt_fid)
+    # fid = new_filter()
+    # b_fid = new_block_filter()
+    # pt_fid = 0 # new_pending_tx_filter()
+    # print(fid, b_fid, pt_fid)
+    #
+    # for i in (fid, b_fid):
+    #     filter_logs = get_filter_logs(i)
+    #     filter_changes = get_filter_changes(i)
+    #     print(filter_logs)
+    #     print(filter_changes)
+    #
+    # print(uninstall_filter(fid, b_fid))
 
-    for i in (fid, b_fid, pt_fid):
-        filter_logs = get_filter_logs(i)
-        filter_changes = get_filter_changes(i)
-        print(filter_logs)
-        print(filter_changes)
+    # conf.set_network('mainnet')
+    # pro_fee = max_priority_fee()
+    # print(pro_fee)
 
-    print(uninstall_filter(fid, b_fid, pt_fid))
+    gas_tracker()
+
     pass
 
 
