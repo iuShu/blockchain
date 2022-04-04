@@ -1,3 +1,5 @@
+import decimal
+
 from web3 import Web3, HTTPProvider
 from hexbytes import HexBytes
 from config import conf
@@ -35,6 +37,12 @@ def print_fee(adict):
     print('tx fee', Web3.fromWei(gas * gas_price, 'ether'))
     print('max fee', Web3.fromWei(max_fee, 'gwei'))
     print('pro fee', Web3.fromWei(pro_fee, 'gwei'))
+    print('prd max', calc_max_fee(pro_fee))
+
+
+def calc_max_fee(priority_fee: int) -> int:
+    max_fee = decimal.Decimal('1.01') * decimal.Decimal(str(priority_fee))
+    return max_fee.__int__()
 
 
 def check_balance():
@@ -57,22 +65,26 @@ def check_tx():
     # tx = w3.eth.get_transaction_by_block(block, 1)   # web3.datastructures.AttributeDict
     # tx = w3.eth.get_transaction(HexBytes('0xd82fd4aba6571384199c2a81eaeccaafe9f459ba8f2f73c51014b26424c65024'))
     # tx = w3.eth.get_transaction(HexBytes('0x97119a46b0700a9d0886b76488716e1152b60db6e25f12ecdc3bf97a7c701c88'))
-    tx = w3.eth.get_transaction_by_block(14514212, 5)
+    tx = w3.eth.get_transaction(HexBytes('0x35e7d57261022ac76ff3b0eb161afea3da7e0ace048a246bd0e66d016a6f64a5'))
+    # tx = w3.eth.get_transaction_by_block(14514212, 5)
     print_dict(tx)
     print()
     print_fee(tx)
 
 
-def fee_history() -> int:
+def fee_history(calc=False) -> int:
     w3 = prepare()
+    if not calc:
+        return w3.eth.max_priority_fee
+
+    # calculation details derived from the implementation of web3py
     fh = w3.eth.fee_history(10, 'latest', [5.0])
     # print_dict(fh)
     non_empty_block_fees = [fee[0] for fee in fh['reward'] if fee[0] != 0]
     # print(non_empty_block_fees)
     divisor = len(non_empty_block_fees) if len(non_empty_block_fees) != 0 else 1
     priority_fee_average_for_percentile = round(sum(non_empty_block_fees) / divisor)
-    print(priority_fee_average_for_percentile)
-    print(w3.eth.max_priority_fee)
+    # print(priority_fee_average_for_percentile)
     return priority_fee_average_for_percentile
 
 
@@ -96,19 +108,19 @@ def send_raw_tx():
     w3 = prepare()
     account = w3.eth.account
     tx = {
+        'chainId': w3.eth.chain_id,
         'from': conf.account('billionaire'),
         'to': conf.account('billionaire2'),
-        'value': w3.toWei(.01, 'ether'),
+        'value': w3.toWei(.02, 'ether'),
         'nonce': w3.eth.get_transaction_count(conf.account('billionaire'), 'latest'),
-        # 'gasPrice': w3.eth.gas_price
-        # 'maxFeePerGas': '',
         'maxPriorityFeePerGas': fee_history()
     }
+    tx['maxFeePerGas'] = calc_max_fee(tx['maxPriorityFeePerGas'])
     tx['gas'] = w3.eth.estimate_gas(tx, 'latest')
     print_dict(tx)
 
     signed_tx = account.signTransaction(tx, conf.secret('billionaire'))
-    print(signed_tx.hash.hex())
+    print('pending hash', signed_tx.hash.hex())
     tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
 
     if tx_hash:
@@ -130,10 +142,10 @@ def filter_logs():
 
 
 if __name__ == '__main__':
-    conf.set_network('mainnet')
+    # conf.set_network('mainnet')
     # check_balance()
     # check_block()
-    check_tx()
+    # check_tx()
     # fee_history()
     # send_tx()
     # send_raw_tx()
