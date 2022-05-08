@@ -102,10 +102,10 @@ def contract_transact_ropsten():
 
 
 def browse_tx():
-    from ganache.ethapi import print_dict
-    conf.set_network('ganache')
+    from ganache.ethapi import print_dict, print_topics
     w3 = prepare()
-    tx_hash = '0x609c62dd37c7db5abb078f1d423a912a332f128b9f920bd26caec19a633d33c2'
+    tx_hash = '0x9770b66f89d6d0b1a0c7540ebf6c5f452972d37c80afee66b6297a4861aaa65e'
+
     # tx = w3.eth.get_transaction(HexBytes(tx_hash))
     # print_dict(tx)
 
@@ -113,11 +113,25 @@ def browse_tx():
     print_dict(receipt)
 
 
+def events():
+    abi = json.load(fp=open(output_abi, 'r'))
+    contract_address = contract_addr()
+    w3 = prepare()
+    contract = w3.eth.contract(abi=abi)
+    log_filter = contract.events.Transfer.createFilter(fromBlock=0, address=contract_address)
+    print('topics', log_filter.filter_params['topics'][0])
+    logs = w3.eth.get_filter_logs(log_filter.filter_id)
+    for log in logs:
+        evt = log_filter.format_entry(log)  # log_filter.log_entry_formatter = get_event_data(..)
+        print_dict(evt)
+
+
 if __name__ == '__main__':
     conf.set_network('ganache')
 
     # contract_function()
-    contract_call()
+    # contract_call()
     # contract_transact()
     # contract_transact_ropsten()
     # browse_tx()
+    events()

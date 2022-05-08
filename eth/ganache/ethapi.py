@@ -1,4 +1,7 @@
 import decimal
+import json
+import threading
+import time
 
 from web3 import Web3, HTTPProvider
 from hexbytes import HexBytes
@@ -18,6 +21,12 @@ def prepare() -> Web3:
 def print_dict(adict):
     for k, v in adict.items():
         print(k, v.hex() if isinstance(v, HexBytes) else v)
+
+
+def print_topics(topics):
+    print('unknown field', topics[0].hex())
+    print('contract from', topics[1].hex())
+    print('contract to', topics[2].hex())
 
 
 def print_fee(adict):
@@ -134,21 +143,27 @@ def filter_logs():
     flt = w3.eth.filter({'fromBlock': 0, 'toBlock': 'latest'})
     # flt = w3.eth.filter('latest')
     # flt = w3.eth.filter('pending')
+    # print(type(flt))
+    print(flt.log_entry_formatter)
     logs = w3.eth.get_filter_logs(flt.filter_id)
+    for log in logs:
+        event = flt.format_entry(log)
+        print_dict(event)
+
     changes = w3.eth.get_filter_changes(flt.filter_id)
-    print(logs)
     print(changes)
+
     print(w3.eth.uninstall_filter(flt.filter_id))
 
 
 if __name__ == '__main__':
-    # conf.set_network('mainnet')
+    conf.set_network('ganache')
     # check_balance()
     # check_block()
     # check_tx()
     # fee_history()
     # send_tx()
     # send_raw_tx()
-    # filter_logs()
+    filter_logs()
 
     pass

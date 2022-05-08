@@ -6,7 +6,7 @@ contract ShrimpCoin {
 
     event Transfer(address indexed _from, address indexed _to, uint _value);    // ver 0.2
 
-    constructor() public {
+    constructor() {
         balances[msg.sender] = 10000;
     }
 
