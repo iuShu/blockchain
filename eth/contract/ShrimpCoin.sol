@@ -10,8 +10,8 @@ contract ShrimpCoin {
         balances[msg.sender] = 10000;
     }
 
-    function transfer(address receiver, uint amount) public returns(bool sufficient) {
-        if (balances[msg.sender] >= amount)
+    function transfer(address receiver, uint amount) public returns(bool) {
+        if (balances[msg.sender] < amount)
             return false;
 
         balances[msg.sender] -= amount;

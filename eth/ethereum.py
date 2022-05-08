@@ -3,7 +3,7 @@ from ether import *
 import requests
 
 gas_tracker_url = 'https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey' \
-                  '=YourApiKey'
+                  '=7F5EIZUMWCNQ8E538FVW9MV4Q37M49SCZR'
 
 
 def request(params):
